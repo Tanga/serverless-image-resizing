@@ -44,7 +44,7 @@ exports.handler = function(event, context, callback) {
         statusCode: '200',
         headers: {
           'Content-Type': 'image/jpeg',
-          'custom': 'test3',
+          'version': '4',
           'Cache-Control': 'max-age=2678400'
         },
         body: buffer.toString('base64'),
