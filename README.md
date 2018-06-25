@@ -1,11 +1,5 @@
 # Serverless Image Resizing
 
-# Test
-https://4kse3vj590.execute-api.us-east-1.amazonaws.com/test?bucket=tanga-fetched-images-prod&filename=0c3ca2c0-7874-11e8-becf-e148023aea3b.jpg&width=500&height=500&quality=90
-
-# Production
-https://8f6dr6s0p3.execute-api.us-east-1.amazonaws.com/prod?bucket=tanga-fetched-images-prod&filename=0c3ca2c0-7874-11e8-becf-e148023aea3b.jpg&width=500&height=500&quality=90
-
 ## Description
 
 Resizes images on the fly using Amazon S3, AWS Lambda, and Amazon API Gateway.
