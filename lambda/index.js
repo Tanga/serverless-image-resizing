@@ -6,8 +6,6 @@ const S3 = new AWS.S3({
 });
 const Sharp = require('sharp');
 
-const BUCKET = process.env.BUCKET;
-const URL = process.env.URL;
 const ALLOWED_DIMENSIONS = new Set();
 
 if (process.env.ALLOWED_DIMENSIONS) {
@@ -17,11 +15,17 @@ if (process.env.ALLOWED_DIMENSIONS) {
 
 exports.handler = function(event, context, callback) {
   console.log(event.queryStringParameters);
-  const bucket = event.queryStringParameters.bucket;
-  const filename = event.queryStringParameters.filename;
+  const url = event.queryStringParameters.url;
+  var bucket = event.queryStringParameters.bucket;
+  var filename = event.queryStringParameters.filename;
   const width = parseInt(event.queryStringParameters.width, 10) || 500;
   const height = parseInt(event.queryStringParameters.height, 10) || 500;
   const quality = parseInt(event.queryStringParameters.quality, 10) || 90;
+
+  if (url != undefined && url != '') {
+    bucket = url.split('/')[3]
+    filename = url.split('/')[4]
+  }
 
   if(ALLOWED_DIMENSIONS.size > 0 && !ALLOWED_DIMENSIONS.has(dimensions)) {
      callback(null, {
@@ -45,7 +49,7 @@ exports.handler = function(event, context, callback) {
         statusCode: '200',
         headers: {
           'Content-Type': 'image/jpeg',
-          'version': '5',
+          'version': '6',
           'Cache-Control': 'max-age=2678400'
         },
         body: buffer.toString('base64'),
