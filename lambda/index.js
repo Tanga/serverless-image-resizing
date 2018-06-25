@@ -16,12 +16,12 @@ if (process.env.ALLOWED_DIMENSIONS) {
 }
 
 exports.handler = function(event, context, callback) {
-  const key = event.queryStringParameters.key;
-  const match = key.match(/((\d+)x(\d+))\/(.*)/);
-  const dimensions = match[1];
-  const width = parseInt(match[2], 10);
-  const height = parseInt(match[3], 10);
-  const originalKey = match[4];
+  console.log(event.queryStringParameters);
+  const bucket = event.queryStringParameters.bucket;
+  const filename = event.queryStringParameters.filename;
+  const width = parseInt(event.queryStringParameters.width, 10);
+  const height = parseInt(event.queryStringParameters.height, 10);
+  const quality = event.queryStringParameters.quality;
 
   if(ALLOWED_DIMENSIONS.size > 0 && !ALLOWED_DIMENSIONS.has(dimensions)) {
      callback(null, {
@@ -32,23 +32,23 @@ exports.handler = function(event, context, callback) {
     return;
   }
 
-  S3.getObject({Bucket: BUCKET, Key: originalKey}).promise()
+  S3.getObject({Bucket: bucket, Key: filename}).promise()
     .then(data => Sharp(data.Body)
       .resize(width, height)
-      .toFormat('png')
+      .background('white')
+      .embed()
+      .toFormat('jpeg')
       .toBuffer()
     )
-    .then(buffer => S3.putObject({
-        Body: buffer,
-        Bucket: BUCKET,
-        ContentType: 'image/png',
-        Key: key,
-      }).promise()
-    )
-    .then(() => callback(null, {
-        statusCode: '301',
-        headers: {'location': `${URL}/${key}`},
-        body: '',
+    .then(buffer => callback(null, {
+        statusCode: '200',
+        headers: {
+          'Content-Type': 'image/jpeg',
+          'custom': 'test3',
+          'Cache-Control': 'max-age=2678400'
+        },
+        body: buffer.toString('base64'),
+        isBase64Encoded: true,
       })
     )
     .catch(err => callback(err))

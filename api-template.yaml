@@ -9,3 +9,6 @@ paths:
         uri: arn:aws:apigateway:REGION:lambda:path/2015-03-31/functions/arn:aws:lambda:REGION:ACCOUNT_ID:function:${stageVariables.LambdaFunctionName}/invocations
         type: AWS_PROXY
         httpMethod: post
+x-amazon-apigateway-binary-media-types:
+  - 'image/jpeg'
+  - '*/*'
