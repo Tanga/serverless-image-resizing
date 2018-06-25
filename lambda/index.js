@@ -19,9 +19,9 @@ exports.handler = function(event, context, callback) {
   console.log(event.queryStringParameters);
   const bucket = event.queryStringParameters.bucket;
   const filename = event.queryStringParameters.filename;
-  const width = parseInt(event.queryStringParameters.width, 10);
-  const height = parseInt(event.queryStringParameters.height, 10);
-  const quality = event.queryStringParameters.quality;
+  const width = parseInt(event.queryStringParameters.width, 10) || 500;
+  const height = parseInt(event.queryStringParameters.height, 10) || 500;
+  const quality = parseInt(event.queryStringParameters.quality, 10) || 90;
 
   if(ALLOWED_DIMENSIONS.size > 0 && !ALLOWED_DIMENSIONS.has(dimensions)) {
      callback(null, {
@@ -38,13 +38,14 @@ exports.handler = function(event, context, callback) {
       .background('white')
       .embed()
       .toFormat('jpeg')
+      .jpeg({ quality: quality })
       .toBuffer()
     )
     .then(buffer => callback(null, {
         statusCode: '200',
         headers: {
           'Content-Type': 'image/jpeg',
-          'version': '4',
+          'version': '5',
           'Cache-Control': 'max-age=2678400'
         },
         body: buffer.toString('base64'),
