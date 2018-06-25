@@ -6,20 +6,27 @@ const S3 = new AWS.S3({
 });
 const Sharp = require('sharp');
 
-const ALLOWED_DIMENSIONS = new Set();
-
-if (process.env.ALLOWED_DIMENSIONS) {
-  const dimensions = process.env.ALLOWED_DIMENSIONS.split(/\s*,\s*/);
-  dimensions.forEach((dimension) => ALLOWED_DIMENSIONS.add(dimension));
-}
+const ALLOWED_BUCKETS = new Array('tanga-images', 'tanga-fetched-images-prod', 'tanga-dev-images');
 
 exports.handler = function(event, context, callback) {
   console.log(event.queryStringParameters);
   const url = event.queryStringParameters.url;
   var bucket = event.queryStringParameters.bucket;
   var filename = event.queryStringParameters.filename;
-  const width = parseInt(event.queryStringParameters.width, 10) || 500;
-  const height = parseInt(event.queryStringParameters.height, 10) || 500;
+  var width = parseInt(event.queryStringParameters.width, 10)
+  var height = parseInt(event.queryStringParameters.height, 10)
+  if (width && !height) {
+    height = width;
+  }
+  if (!width && height) {
+    width = height;
+  }
+  if(!width) {
+    width = 500;
+  }
+  if(!height) {
+    height = 500;
+  }
   const quality = parseInt(event.queryStringParameters.quality, 10) || 90;
 
   if (url != undefined && url != '') {
@@ -27,7 +34,7 @@ exports.handler = function(event, context, callback) {
     filename = url.split('/')[4]
   }
 
-  if(ALLOWED_DIMENSIONS.size > 0 && !ALLOWED_DIMENSIONS.has(dimensions)) {
+  if(!ALLOWED_BUCKETS.includes(bucket)) {
      callback(null, {
       statusCode: '403',
       headers: {},
