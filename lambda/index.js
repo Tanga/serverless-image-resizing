@@ -6,7 +6,7 @@ const S3 = new AWS.S3({
 });
 const Sharp = require('sharp');
 
-const ALLOWED_BUCKETS = new Array('tanga-images', 'tanga-fetched-images-prod', 'tanga-dev-images');
+const ALLOWED_BUCKETS = new Array('tanga-images', 'tanga-verified-images-prod', 'tanga-fetched-images-prod', 'tanga-dev-images');
 
 exports.handler = function(event, context, callback) {
   console.log(event.queryStringParameters);
