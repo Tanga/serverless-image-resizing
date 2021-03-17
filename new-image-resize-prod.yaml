@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      DefinitionUri: ./deploy/api-template-prod.yaml
+      StageName: prod
+      Variables:
+        LambdaFunctionName: !Ref ResizeFunction
+
+  ResizeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./dist/function.zip
+      Handler: index.handler
+      Runtime: nodejs12.x
+      MemorySize: 1536
+      Timeout: 60
+
+  ResizeFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ResizeFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*

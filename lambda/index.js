@@ -15,6 +15,10 @@ exports.handler = function(event, context, callback) {
   var filename = event.queryStringParameters.filename;
   var width = parseInt(event.queryStringParameters.width, 10)
   var height = parseInt(event.queryStringParameters.height, 10)
+  var format = event.queryStringParameters.format || 'jpeg'
+  if (format != 'webp' && format != 'jpeg') {
+    format = 'jpeg';
+  }
   if (width && !height) {
     height = width;
   }
@@ -43,25 +47,53 @@ exports.handler = function(event, context, callback) {
     return;
   }
 
-  S3.getObject({Bucket: bucket, Key: filename}).promise()
-    .then(data => Sharp(data.Body)
-      .resize(width, height)
-      .background('white')
-      .embed()
-      .toFormat('jpeg')
-      .jpeg({ quality: quality })
-      .toBuffer()
-    )
-    .then(buffer => callback(null, {
-        statusCode: '200',
-        headers: {
-          'Content-Type': 'image/jpeg',
-          'version': '6',
-          'Cache-Control': 'max-age=2678400'
-        },
-        body: buffer.toString('base64'),
-        isBase64Encoded: true,
-      })
-    )
-    .catch(err => callback(err))
+  if (format == 'webp') {
+    S3.getObject({Bucket: bucket, Key: filename}).promise()
+      .then(data => Sharp(data.Body)
+        .resize({
+          width: width,
+          height: height,
+          background: {r: 255, g: 255, b: 255}
+        })
+        .toFormat(format)
+        .webp({ quality: quality })
+        .toBuffer()
+      )
+      .then(buffer => callback(null, {
+          statusCode: '200',
+          headers: {
+            'Content-Type': 'image/webp',
+            'version': '6a',
+            'Cache-Control': 'max-age=31556952'
+          },
+          body: buffer.toString('base64'),
+          isBase64Encoded: true,
+        })
+      )
+      .catch(err => callback(err))
+  } else {
+    S3.getObject({Bucket: bucket, Key: filename}).promise()
+      .then(data => Sharp(data.Body)
+        .resize({
+          width: width,
+          height: height,
+          background: {r: 255, g: 255, b: 255}
+        })
+        .toFormat(format)
+        .jpeg({ quality: quality })
+        .toBuffer()
+      )
+      .then(buffer => callback(null, {
+          statusCode: '200',
+          headers: {
+            'Content-Type': 'image/jpeg',
+            'version': '6b',
+            'Cache-Control': 'max-age=31556952'
+          },
+          body: buffer.toString('base64'),
+          isBase64Encoded: true,
+        })
+      )
+      .catch(err => callback(err))
+  }
 }

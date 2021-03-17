@@ -9,6 +9,15 @@ function via API Gateway which will resize the image, upload it to S3, and
 redirect the requestor to the resized image. The next request for the resized
 image will be served from S3 directly.
 
+## Quick Usage
+
+If you just change index.js:
+1) make dist
+2) sh bin/new_deploy_test
+
+TEST IT, then deploy to production
+3) sh bin/new_deploy_prod
+
 ## Usage
 
 1. Build the Lambda function
